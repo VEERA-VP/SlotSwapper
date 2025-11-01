@@ -71,12 +71,3 @@ cd client && npm run build
 
 ### Status enum
 `BUSY | SWAPPABLE | SWAP_PENDING`
-
-## Notes & Assumptions
-- Minimal UI for demo; not a full calendar grid.
-- JWT can be sent as **Authorization: Bearer** or stored in http-only cookie.
-- Basic validations; no email verification.
-- Swap is transactional at app-level (with Mongoose session).
-
-## License
-MIT
