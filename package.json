@@ -1,0 +1,12 @@
+{
+  "name": "slotswapper",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "echo Run dev separately in /server and /client; exit 0",
+    "install-all": "npm --prefix server install && npm --prefix client install"
+  }
+}
