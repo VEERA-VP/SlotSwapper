@@ -71,3 +71,22 @@ cd client && npm run build
 
 ### Status enum
 `BUSY | SWAPPABLE | SWAP_PENDING`
+
+##  Live Demo
+
+**Frontend (Deployed App):** [https://slotswapper-1-npp1.onrender.com](https://slotswapper-1-npp1.onrender.com)
+
+If you encounter any issues or “Unauthorized” errors while using the deployed version,
+please **clone the repository and run it locally** by following the setup instructions in this README.
+
+##  Test Credentials
+
+You can use any of the following demo accounts to explore the app:
+
+| Email             | Password   |
+| ----------------- | ---------- |
+| `test1@gmail.com` | `password` |
+| `test2@gmail.com` | `password` |
+| `john@gmail.com`  | `john`     |
+
+You can also **sign up** with a new account if you prefer.
