@@ -72,11 +72,21 @@ cd client && npm run build
 ### Status enum
 `BUSY | SWAPPABLE | SWAP_PENDING`
 
-## Notes & Assumptions
-- Minimal UI for demo; not a full calendar grid.
-- JWT can be sent as **Authorization: Bearer** or stored in http-only cookie.
-- Basic validations; no email verification.
-- Swap is transactional at app-level (with Mongoose session).
+##  Live Demo
 
-## License
-MIT
+**Frontend (Deployed App):** [https://slotswapper-1-npp1.onrender.com](https://slotswapper-1-npp1.onrender.com)
+
+If you encounter any issues or “Unauthorized” errors while using the deployed version,
+please **clone the repository and run it locally** by following the setup instructions in this README.
+
+##  Test Credentials
+
+You can use any of the following demo accounts to explore the app:
+
+| Email             | Password   |
+| ----------------- | ---------- |
+| `test1@gmail.com` | `password` |
+| `test2@gmail.com` | `password` |
+| `john@gmail.com`  | `john`     |
+
+You can also **sign up** with a new account if you prefer.
