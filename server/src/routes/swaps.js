@@ -6,22 +6,16 @@ import SwapRequest, { SwapStatus } from '../models/SwapRequest.js';
 
 const router = express.Router();
 
-/**
- * Return other users' swappable slots with owner name/email.
- */
 router.get('/swappable-slots', auth, async (req, res) => {
   const slots = await Event.find({
     userId: { $ne: req.user.id },
     status: EventStatus.SWAPPABLE
   })
     .sort({ startTime: 1 })
-    .populate('userId', 'name email'); // show owner
+    .populate('userId', 'name email');
   res.json({ slots });
 });
 
-/**
- * List incoming/outgoing swap requests with populated user and slot details.
- */
 router.get('/swap-requests/incoming', auth, async (req, res) => {
   const items = await SwapRequest.find({
     responderId: req.user.id,
@@ -41,9 +35,6 @@ router.get('/swap-requests/outgoing', auth, async (req, res) => {
   res.json({ requests: items });
 });
 
-/**
- * Create swap request: lock both slots as SWAP_PENDING.
- */
 router.post('/swap-request', auth, async (req, res) => {
   const { mySlotId, theirSlotId } = req.body;
   if (!mySlotId || !theirSlotId) {
@@ -93,13 +84,6 @@ router.post('/swap-request', auth, async (req, res) => {
   }
 });
 
-/**
- * Respond to swap request.
- * NOTE (updated): On accept, we **swap only the time ranges** of the two events.
- * - Titles stay with their original owners.
- * - Owners (userId) DO NOT change.
- * - Both statuses become BUSY.
- */
 router.post('/swap-response/:requestId', auth, async (req, res) => {
   const { requestId } = req.params;
   const { accept } = req.body;
@@ -111,8 +95,8 @@ router.post('/swap-response/:requestId', auth, async (req, res) => {
   }
 
   const [a, b] = await Promise.all([
-    Event.findById(reqDoc.mySlotId),     // requester’s offered slot
-    Event.findById(reqDoc.theirSlotId)   // responder’s slot requested
+    Event.findById(reqDoc.mySlotId),
+    Event.findById(reqDoc.theirSlotId)
   ]);
   if (!a || !b) return res.status(404).json({ error: 'Slots missing' });
 
@@ -132,7 +116,6 @@ router.post('/swap-response/:requestId', auth, async (req, res) => {
       return res.json({ request: reqDoc });
     }
 
-    // ACCEPT: swap ONLY start/end times (titles & owners remain)
     const aStart = a.startTime, aEnd = a.endTime;
     a.startTime = b.startTime;
     a.endTime = b.endTime;

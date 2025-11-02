@@ -2,23 +2,48 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import EventForm from '../components/EventForm';
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, token }) {
   const [events, setEvents] = useState([]);
   const [others, setOthers] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [error, setError] = useState(null);
 
+  function formatDateRange(startTime, endTime) {
+    if (!startTime || !endTime) return '';
+    
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    const dateStr = `${start.getMonth() + 1}/${start.getDate()}/${start.getFullYear()}`;
+    
+    const formatTime = (date) => {
+      let hours = date.getHours();
+      const minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const minutesStr = minutes < 10 ? `0${minutes}` : minutes;
+      return `${hours}:${minutesStr} ${ampm}`;
+    };
+    
+    const startTimeStr = formatTime(start);
+    const endTimeStr = formatTime(end);
+    
+    return `${dateStr}, ${startTimeStr} - ${endTimeStr}`;
+  }
+
   async function refresh() {
     try {
-      const my = await api('/events');
-      const other = await api('/swappable-slots');
-      const inc = await api('/swap-requests/incoming');
-      const out = await api('/swap-requests/outgoing');
+      const my   = await api('/events',                 { token });
+      const other= await api('/swappable-slots',        { token });
+      const inc  = await api('/swap-requests/incoming', { token });
+      const out  = await api('/swap-requests/outgoing', { token });
       setEvents(my.events || []);
       setOthers(other.slots || []);
       setIncoming(inc.requests || []);
       setOutgoing(out.requests || []);
+      setError(null);
     } catch (e) {
       setError(e.message);
     }
@@ -26,25 +51,25 @@ export default function Dashboard({ user }) {
 
   useEffect(() => {
     refresh();
-  }, []);
+  }, [token]);
 
   async function create(ev) {
-    await api('/events', { method: 'POST', body: ev });
+    await api('/events', { method: 'POST', body: ev, token });
     refresh();
   }
 
   async function setStatus(id, status) {
-    await api(`/events/${id}`, { method: 'PUT', body: { status } });
+    await api(`/events/${id}`, { method: 'PUT', body: { status }, token });
     refresh();
   }
 
   async function requestSwap(mySlotId, theirSlotId) {
-    await api('/swap-request', { method: 'POST', body: { mySlotId, theirSlotId } });
+    await api('/swap-request', { method: 'POST', body: { mySlotId, theirSlotId }, token });
     refresh();
   }
 
   async function respond(id, accept) {
-    await api(`/swap-response/${id}`, { method: 'POST', body: { accept } });
+    await api(`/swap-response/${id}`, { method: 'POST', body: { accept }, token });
     refresh();
   }
 
@@ -194,9 +219,15 @@ export default function Dashboard({ user }) {
                       <p style={{ marginBottom: '12px' }}>
                         <strong>{r.requesterId?.name || 'Someone'}</strong> wants your{' '}
                         <strong>{r.theirSlotId?.title}</strong>
+                        {r.theirSlotId?.startTime && r.theirSlotId?.endTime && (
+                          <> scheduled from {formatDateRange(r.theirSlotId.startTime, r.theirSlotId.endTime)}</>
+                        )}
                       </p>
                       <p style={{ marginBottom: '12px', color: 'var(--text-secondary)', fontSize: '14px' }}>
                         They will give you: <strong>{r.mySlotId?.title}</strong>
+                        {r.mySlotId?.startTime && r.mySlotId?.endTime && (
+                          <> scheduled from {formatDateRange(r.mySlotId.startTime, r.mySlotId.endTime)}</>
+                        )}
                       </p>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button 
@@ -234,9 +265,15 @@ export default function Dashboard({ user }) {
                       <p style={{ marginBottom: '8px' }}>
                         You requested <strong>{r.theirSlotId?.title}</strong> from{' '}
                         <strong>{r.responderId?.name || 'user'}</strong>
+                        {r.theirSlotId?.startTime && r.theirSlotId?.endTime && (
+                          <> scheduled from {formatDateRange(r.theirSlotId.startTime, r.theirSlotId.endTime)}</>
+                        )}
                       </p>
                       <p style={{ marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '14px' }}>
                         You offered: <strong>{r.mySlotId?.title}</strong>
+                        {r.mySlotId?.startTime && r.mySlotId?.endTime && (
+                          <> scheduled from {formatDateRange(r.mySlotId.startTime, r.mySlotId.endTime)}</>
+                        )}
                       </p>
                       <span className={`badge ${
                         r.status === 'ACCEPTED' ? 'badge-success' :
